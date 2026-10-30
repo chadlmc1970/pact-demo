@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PACT UX Walkthrough</title>
+<style>
+:root{--ink:#1B2430;--mute:#47505E;--line:#D5D9E0;--bg:#F4F5F7;--card:#fff;--blue:#1F4E79;--blue-soft:#EEF3F8;--amber:#A9480A;--amber-soft:#FFF1E3;--amber-ink:#7A3307;--green:#1D5B36;--green-soft:#E3F0E8;--purple:#4A2F7A;--purple-soft:#F3F0F8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/22px system-ui,-apple-system,"Segoe UI",sans-serif}
+button{font:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+header{background:var(--ink);color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;align-items:center}
+header b{letter-spacing:.08em}
+header span{font-size:13px;color:#E3E7EC}
+.wrap{max-width:1400px;margin:0 auto;padding:20px 16px 48px}
+.dots{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.dots button{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #8C95A3;background:#fff;color:var(--ink);font-size:14px}
+.dots button[aria-current="step"]{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.layout{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:24px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+.narr{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;position:sticky;top:12px}
+@media(max-width:900px){.narr{position:static}}
+.narr .kick{font:600 12px/16px ui-monospace,Menlo,monospace;color:var(--blue);letter-spacing:.04em}
+.narr h1{margin:6px 0 10px;font-size:24px;line-height:30px}
+.narr p{margin:0 0 12px;color:var(--mute)}
+.narr h3{margin:16px 0 6px;font-size:14px}
+.narr ul{margin:0;padding-left:18px;color:var(--ink)}
+.narr li{margin-bottom:6px;font-size:14px}
+.nav{display:flex;gap:10px;margin-top:20px}
+.nav button{flex:1;min-height:48px;border-radius:10px;border:1px solid #8C95A3;background:#fff;font-weight:600}
+.nav button.p{background:var(--blue);border-color:var(--blue);color:#fff}
+.nav button:disabled{opacity:.4;cursor:default}
+.hint{font-size:12px;color:var(--mute);margin-top:10px}
+.stage{min-width:0}
+.frame{background:var(--bg);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.bar{background:var(--ink);color:#fff;padding:10px 16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bar b{letter-spacing:.08em}.bar span{font-size:12px;color:#E3E7EC}
+.body{padding:24px;display:flex;flex-direction:column;gap:20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.card h2{margin:0;font-size:19px;line-height:26px}
+.mono{font:12px/16px ui-monospace,Menlo,monospace;color:var(--mute)}
+.pill{font-size:13px;padding:2px 10px;border-radius:999px;display:inline-block}
+.p-sup{background:var(--green-soft);color:var(--green)}
+.p-sug{background:#FFE3C7;color:var(--amber-ink)}
+.p-unk{background:#EDE7F6;color:var(--purple)}
+.p-na{background:#ECEEF1;color:#3B4552}
+.p-skip{border:1px dashed #8C95A3;color:#3B4552}
+.p-open{border:1px solid #8C95A3;color:#3B4552}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.field{padding:14px 0;border-top:1px solid #E6E9EE;display:flex;flex-direction:column;gap:6px}
+.sub{font-size:14px;color:var(--mute)}
+.btn{min-height:44px;padding:0 18px;border-radius:8px;border:1px solid #8C95A3;background:#fff;color:var(--ink)}
+.btn.pri{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.link{background:none;border:0;color:var(--blue);text-decoration:underline;min-height:44px;padding:0 4px;font-size:14px}
+textarea{font:inherit;padding:12px 14px;border:1px solid #8C95A3;border-radius:10px;width:100%;background:#fff;color:var(--ink)}
+.suggest{border:2px dashed var(--amber);background:#FFF8F1;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.confirmed{border:1px solid var(--line);background:#fff;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.cols{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.cols>*{flex:1 1 340px;min-width:0}
+.hl{outline:3px solid #F2B880;outline-offset:3px;border-radius:12px}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.step{border:1px solid #B9C0CA;border-radius:12px;padding:14px;background:#fff;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.step.now{background:var(--amber-soft);border:2px solid var(--amber)}
+.step.part{border:2px dashed var(--amber)}
+.step .tag{font:12px/16px ui-monospace,Menlo,monospace;color:#5B6676}
+.step.now .tag,.step.part .tag{color:#8A3A08}
+.life{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px}
+.life .n{width:200px;font-weight:600}
+.st{padding:5px 12px;border-radius:999px;background:#E6EDF5;color:#163A5A}
+.st.d{background:var(--blue);color:#fff}
+.priv{background:var(--purple-soft);border:1px solid #C9BEDD;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:480px}
+th{text-align:left;color:var(--mute);padding:8px;border-bottom:1px solid var(--line)}
+td{padding:10px 8px;border-bottom:1px solid #E6E9EE}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.opt{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.opt .pill{align-self:flex-start}
+.planned{align-self:flex-start;background:#FFE3C7;color:var(--amber-ink);padding:6px 12px;border-radius:8px;font:12px/16px ui-monospace,Menlo,monospace}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pills button{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #8C95A3;background:#fff;font-size:14px}
+.pills button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.need{padding:10px 12px;border-radius:8px;background:var(--bg);display:flex;flex-direction:column;gap:2px;font-size:14px}
+.big{font-size:26px;line-height:34px;font-weight:700}
+.scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<header><b>PACT</b><span>Project Assessment &amp; Change Tracking · UX walkthrough · synthetic example data, mock-up not the shipped UI</span></header>
+<div class="wrap">
+  <nav class="dots" id="dots" aria-label="Walkthrough steps"></nav>
+  <div class="layout">
+    <aside class="narr" aria-live="polite">
+      <div class="kick" id="kick"></div>
+      <h1 id="title"></h1>
+      <p id="lede"></p>
+      <h3>What to notice</h3>
+      <ul id="notice"></ul>
+      <div class="nav"><button id="prev">Back</button><button id="next" class="p">Next</button></div>
+      <div class="hint">Left and right arrow keys also move between steps. Everything on the right is clickable where it looks clickable.</div>
+    </aside>
+    <main class="stage"><div class="frame"><div class="bar"><b>PACT</b><span id="screenname"></span></div><div class="body" id="screen"></div></div></main>
+  </div>
+</div>
+
+<script>
+var S = {decision:'indicative', accepted:false, scenario:'slack', approved:null};
+var cur = 0;
+
+function esc(s){return s}
+
+var steps = [
+{
+  nav:'1 · Big picture', kick:'STEP 1 OF 7', screen:'Workflow and linked lifecycles',
+  title:'How a project moves from request to measured outcome',
+  lede:'PACT keeps asking one question as things change: given what has changed, is this still the right project, at this scope, price and delivery date?',
+  notice:['Orange boxes are being built now (slices 1 and 2). Dashed is started. Grey is later.','Changes are always measured against an approved baseline revision, never edited in place.','Accepting delivery and measuring business value are separate records with separate approvers.'],
+  render:function(){
+    var st=[['1 · Capture and brief','Describe the request. Get an editable brief that keeps facts apart from suggestions.','now','NOW'],
+    ['2 · Clarify','One question at a time, only when the answer changes a decision.','now','NOW'],
+    ['3 · Calculate','Supported figures and optional scenarios. Gaps stay gaps.','part','STARTED · CORE FORMULAS'],
+    ['4 · Approve a baseline','Both sides approve an exact revision. It is never edited in place.','','LATER · SLICE 4'],
+    ['5 · Capture a change','A new request, a delay, a discovery or a changed condition.','','LATER · SLICE 5'],
+    ['6 · Trace the impact','Scope, acceptance tests, dependencies, costs and benefits it touches.','','LATER · SLICE 5'],
+    ['7 · Compare responses','Decline, swap, phase, extend, fund or pause. Only feasible ones.','','LATER · SLICE 5'],
+    ['8 · Decide','An authorized person approves, rejects or defers. Approval makes a new revision.','','LATER · SLICE 5'],
+    ['9a · Accept delivery','Did the work pass the tests both sides agreed?','','LATER · SLICE 6'],
+    ['9b · Measure outcomes','What actually happened, never overwriting the forecast.','','LATER · SLICE 6']];
+    var h='<div class="card"><h2>The path</h2><div class="flow">';
+    st.forEach(function(s){h+='<div class="step '+s[2]+'"><b>'+s[0]+'</b><span>'+s[1]+'</span><span class="tag">'+s[3]+'</span></div>';});
+    h+='</div></div><div class="card"><h2>Linked lifecycles</h2><span class="sub">No single giant status. Each kind of record has its own states and permitted moves. Readiness is worked out per decision, not stored.</span>';
+    var L=[['Assessment',['Draft','In review','Reviewed'],'Readiness is derived, not a status.'],
+    ['Proposal / baseline',['Draft','Submitted','*Approved','Superseded'],'Also ends as rejected, withdrawn.'],
+    ['Change',['Captured','Needs clarification','Impact assessed','Awaiting decision','*Approved'],'Or rejected, deferred, withdrawn. Baseline stays as it was.'],
+    ['Deliverable',['Planned','In progress','Submitted for acceptance','*Accepted'],'Or disputed, cancelled.'],
+    ['Benefit observation',['Forecast','Observation submitted','*Reviewed'],'Or disputed. A forecast is never overwritten by an actual.']];
+    L.forEach(function(l){h+='<div class="life"><span class="n">'+l[0]+'</span>';l[1].forEach(function(x,i){var d=x.charAt(0)=='*';h+=(i?'<span aria-hidden="true">→</span>':'')+'<span class="st'+(d?' d':'')+'">'+(d?x.slice(1):x)+'</span>';});h+='<span class="sub">'+l[2]+'</span></div>';});
+    return h+'</div>';
+  }
+},
+{
+  nav:'2 · Entry', kick:'STEP 2 OF 7', screen:'1 · Entry',
+  title:'One sentence is enough to start',
+  lede:'The first screen asks for a single description and nothing else. No catalog, history, integrations or documents are needed.',
+  notice:['Both inputs are optional, and there is an "empty brief" escape hatch.','Pasted words are treated as information, never as instructions to the system.','File upload is deliberately off until its safety checks exist.','The promise is explicit: no invented costs, dates or benefits. Missing stays visibly missing.'],
+  render:function(){
+    return '<div style="max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:22px;padding:24px 0"><h2 style="margin:0;font-size:34px;line-height:42px">Tell us what you want to build or improve.</h2><p style="margin:0;font-size:17px;color:var(--mute)">A sentence or two is enough to start. Nothing else is required.</p>'+
+    '<div><label for="d" style="font-weight:600">Describe it <span style="font-weight:400;color:var(--mute)">(optional)</span></label><textarea id="d" rows="4" style="margin-top:8px">Our team manually re-keys supplier invoices from email into the finance system.</textarea><div class="sub" style="margin-top:6px">Plain language is fine. Your words are treated as information, never as instructions to the system.</div></div>'+
+    '<details class="card"><summary style="cursor:pointer;font-weight:600">Add existing material <span style="font-weight:400;color:var(--mute)">(optional)</span></summary><div style="padding-top:10px"><label for="n">Paste notes, an email or a process outline</label><textarea id="n" rows="3" style="margin-top:6px"></textarea><div class="sub" style="margin-top:6px">File upload stays off until its safety checks are in place.</div></div></details>'+
+    '<div class="pills"><button class="btn pri" style="min-height:48px;padding:0 24px;border-radius:10px" data-go="2">Create my brief</button><button class="btn" style="min-height:48px;border-radius:10px" data-go="2">Start with an empty brief</button></div>'+
+    '<div class="card"><b>What happens next</b><span>You get a brief you can edit, straight away.</span><span>Anything we read into your wording is marked as a suggestion until you confirm it.</span><span>We won\'t fill in costs, dates or benefits you haven\'t given us. Missing items stay visibly missing.</span><span>No catalog, project history, integrations or documents are needed to begin.</span></div></div>';
+  }
+},
+{
+  nav:'3 · The brief', kick:'STEP 3 OF 7', screen:'2 · Workspace · Project brief',
+  title:'A brief where every line says where it came from',
+  lede:'Each field carries a status pill. This is the core idea: facts, suggestions, unknowns and not-applicable are never blended together.',
+  notice:['Green "Supplied" means you said it. "Confirmed" means you accepted a suggestion.','The dashed orange box is a suggestion. It quotes the phrase it came from and says it is rule-based, not AI. Click Accept.','"Unknown" names who could resolve it. "Not applicable" keeps its reason. "Skipped" will come back when needed.','Nothing is filled in on your behalf without saying so.'],
+  render:function(){
+    function f(label,pill,cls,val,sub){return '<div class="field"><div class="row"><b>'+label+'</b><span class="pill '+cls+'">'+pill+'</span></div><span>'+val+'</span>'+(sub?'<span class="sub">'+sub+'</span>':'')+'</div>';}
+    var h='<div class="card"><div class="row"><div><div class="mono">SYNTHETIC TEST PROJECT · PROCESS AUTOMATION · METHOD 1.0.0</div><h2 style="font-size:26px;line-height:34px">Supplier invoice entry</h2></div><span style="font-size:14px;color:var(--green)">Saved just now. You can leave and come back at any time.</span></div></div>';
+    h+='<div class="card"><div class="row"><h2>Project brief</h2><span class="sub">Every field is editable.</span></div>';
+    h+=f('What you want to build or improve','Supplied · entered by you','p-sup','Our team manually re-keys supplier invoices from email into the finance system.');
+    h+=f('Kind of work','Confirmed · you accepted a suggestion','p-sup','Automating or improving a business process');
+    h+=f('How the work happens today','Confirmed · you accepted a suggestion','p-sup','People do it by hand');
+    if(S.accepted){
+      h+='<div class="confirmed hl"><div class="row"><b>Whether the automation is expected to use AI</b><span class="pill p-sup">Confirmed · you accepted a suggestion</span></div><span>Yes</span><span class="sub">Accepted from the suggestion quoting your notes. It is now part of the brief and counted in readiness.</span><div><button class="link" data-act="undo">Undo (demo)</button></div></div>';
+    } else {
+      h+='<div class="suggest hl"><div class="row"><b>Whether the automation is expected to use AI</b><span class="pill p-sug">Suggested — needs your confirmation</span></div><span>Suggested answer: <b>Yes</b></span><span class="sub">From your pasted notes: “…ideally <mark style="background:#FFE3C7">AI</mark> would read the attached PDF invoices…”</span><span class="mono" style="color:var(--amber-ink)">SUGGESTED FROM YOUR WORDING — RULE-BASED, NOT AI</span><div class="pills"><button class="btn pri" data-act="accept">Accept</button><button class="btn">Edit</button><button class="btn">Reject</button></div></div>';
+    }
+    h+=f('Current manual steps','Unknown','p-unk','<span style="color:var(--mute)">Nobody here knows yet. Who could resolve it: the accounts payable team lead.</span>');
+    h+=f('How often the work happens today','Supplied · entered by you','p-sup','400 invoices per month','No source linked yet. Add evidence.');
+    h+=f('Hands-on time per invoice today','Supplied · entered by you','p-sup','6 minutes');
+    h+=f('Hands-on time per invoice that would remain','Supplied · an estimate','p-sup','1.5 minutes','Estimated by you. Basis: checking totals and handling exceptions.');
+    h+=f('Date this needs to be working','Not applicable','p-na','<span style="color:var(--mute)">Reason given: there is no deadline driving this.</span>');
+    h+=f('What is excluded','Skipped for now','p-skip','<span style="color:var(--mute)">Still open. It will come back when a firm proposal needs it.</span>');
+    h+=f('What will happen to the freed time','Not yet answered','p-open','<span style="color:var(--mute)">Only asked if you want the freed time valued.</span>');
+    return h+'</div>';
+  }
+},
+{
+  nav:'4 · Next step & readiness', kick:'STEP 4 OF 7', screen:'2 · Workspace · Next step, readiness, figures',
+  title:'One question at a time, and an honest "not ready"',
+  lede:'The side panel asks the single most useful next question, explains why, and shows what each decision can and cannot be supported with right now.',
+  notice:['"Why we\'re asking" ties each question to a decision, so nothing is asked for its own sake.','"I don\'t know" stays unknown, never zero. "Not applicable" asks for a short reason.','Click the three decision pills: exploratory is ready, indicative and firm list exactly what is still missing.','30 hours a month is shown as time, never as money. Valuing it needs a stated rate and a stated use, and the system will not assume one.'],
+  render:function(){
+    var D={exploratory:{l:'Exploratory brief',r:true,can:'A shared description of what is being asked, to decide whether to explore further.',cannot:'Any price, date, effort or value figure.',b:[]},
+    indicative:{l:'Indicative scenario',r:false,can:'A rough, clearly labeled view of possible value and of what a proposal would need to settle.',cannot:'A firm price, a delivery date, or a commitment by either side.',b:[['Describe the current manual steps.','Recorded as unknown. The accounts payable team lead could resolve it.'],['List the systems, files or tools involved.','Not answered yet. This is the next step.']]},
+    firm:{l:'Firm proposal',r:false,can:'A specific offer of scope, price and timing for both sides to review.',cannot:'A legally binding agreement. Approval in PACT records a decision, not a signature.',b:[['List the systems, files or tools involved.','Not answered yet.'],['A technical review of the systems is needed before effort can be committed.','Consider a short, bounded discovery phase first.'],['Decide whether the automation will use AI.','A suggestion is waiting for your confirmation.'],['Value the freed time with an explicit rate and use.','Needs: what will happen to the freed time; hourly cost or value.'],['State what is included and what is excluded.','Exclusions were skipped for now.'],['Provider cost and margin policy are needed for a price floor.','Private to the provider.'],['Deliverables and acceptance tests are needed.','Arrive in the agreement release.']]}};
+    var c=D[S.decision];
+    var h='<div class="cols"><div style="display:flex;flex-direction:column;gap:20px"><div class="card" style="border:2px solid var(--blue)"><span class="mono" style="color:var(--blue)">NEXT STEP</span><h2>Which systems, files or tools does this work touch?</h2><div style="background:var(--blue-soft);border-radius:10px;padding:12px 14px"><b style="font-size:14px">Why we\'re asking</b><div style="font-size:14px">Needed for an indicative scenario. Effort depends heavily on the systems involved. Without them, no credible estimate is possible.</div></div><label for="a" style="font-weight:600">Your answer</label><textarea id="a" rows="3" placeholder="For example: shared mailbox, the finance system, a supplier spreadsheet"></textarea><button class="btn pri" style="min-height:48px;border-radius:10px">Save answer</button><div class="pills"><button class="btn">I don\'t know</button><button class="btn">Not applicable</button><button class="btn">Skip for now</button></div><span class="sub" style="font-size:13px">“I don\'t know” is kept as unknown, never as zero. “Not applicable” asks for a short reason.</span></div>';
+    h+='<div class="card"><h2>Figures so far</h2><div style="background:var(--blue-soft);border-radius:10px;padding:14px"><b>Time that could be freed</b><div class="big">30.00 hours per month</div><div style="font-size:14px">Time, not money saved.</div><div class="sub" style="font-size:13px">400 invoices per month × (6 − 1.5) minutes, from answers you entered. Recalculated if any of them change.</div></div><div style="border:1px dashed #8C95A3;border-radius:10px;padding:14px"><b>Value of the freed time</b><div class="sub">Can\'t be calculated yet. Needs: what will happen to the freed time, and an hourly cost or value with its source. We won\'t assume a rate.</div></div></div></div>';
+    h+='<div class="card hl"><h2>What can this support yet?</h2><div class="pills" role="group" aria-label="Decision">';
+    ['exploratory','indicative','firm'].forEach(function(k){h+='<button aria-pressed="'+(S.decision==k)+'" data-dec="'+k+'">'+D[k].l+'</button>';});
+    h+='</div><b style="color:'+(c.r?'var(--green)':'var(--amber-ink)')+'">'+(c.r?'Ready: nothing more is needed for this.':'Not ready yet')+'</b><div><b style="font-size:14px">It can support</b><div style="font-size:14px">'+c.can+'</div></div><div><b style="font-size:14px">It cannot support</b><div style="font-size:14px">'+c.cannot+'</div></div>';
+    if(c.b.length){h+='<b style="font-size:14px">Still needed</b>';c.b.forEach(function(x){h+='<div class="need"><span>'+x[0]+'</span><span class="sub" style="font-size:13px">'+x[1]+'</span></div>';});}
+    h+='</div></div>';
+    return h;
+  }
+},
+{
+  nav:'5 · Provider vs customer', kick:'STEP 5 OF 7', screen:'3 · Provider vs customer view',
+  title:'One project, two views, and private numbers never leave the server',
+  lede:'The provider sees their own cost and margin. The customer sees only what is shared. The filtering happens on the server, not by hiding things on screen.',
+  notice:['The purple box is private to the provider: delivery cost, target margin, price floor.','Price floor = cost ÷ (1 − margin), rounded up. The screen says it is not a selling price and not a market value.','The customer view still shows the 30 hours, and says plainly the firm proposal is not ready.','Customers can review and mark anything they disagree with as disputed.'],
+  render:function(){
+    var shared=function(w){return '<div style="display:flex;flex-direction:column;gap:10px"><b style="font-size:14px;color:var(--mute)">Shared with '+w+'</b><div class="row"><span>What you want to build or improve</span><span class="sub">Supplier invoice entry</span></div><div class="row"><span>Time that could be freed</span><b>30.00 hours per month</b></div><div class="row"><span>Proposed price</span><span class="sub">Not set yet</span></div></div>';};
+    return '<div class="cols"><div class="card"><span class="mono">SIGNED IN AS · PROVIDER, AUTHOR</span><h2 style="font-size:22px">Provider view</h2>'+shared('the customer')+'<div class="priv"><b style="color:var(--purple)">🔒 Private to your organization</b><div class="row"><span>Estimated delivery cost</span><b>USD 10,000.00</b></div><span class="sub" style="font-size:13px">Entered by you. Includes: build and test effort. Synthetic figure.</span><div class="row"><span>Target gross margin</span><b>30%</b></div><div style="background:#fff;border-radius:10px;padding:12px"><div class="row"><b>Your price floor</b><b style="font-size:18px">USD 14,285.72</b></div><span class="sub" style="font-size:13px">Cost ÷ (1 − margin), rounded up. Not a selling price, and not a market value.</span></div></div></div>'+
+    '<div class="card"><span class="mono">SIGNED IN AS · CUSTOMER, REVIEWER</span><h2 style="font-size:22px">Customer view</h2>'+shared('you')+'<div style="background:var(--bg);border-radius:12px;padding:16px"><b>Firm proposal: not ready yet</b><div style="font-size:14px">Provider-side information is still needed.</div><div class="sub" style="font-size:13px">You can review the brief and mark anything you disagree with as disputed.</div></div></div></div>';
+  }
+},
+{
+  nav:'6 · A change (planned)', kick:'STEP 6 OF 7', screen:'4 · Change-to-value (planned, slice 5)',
+  title:'When something moves: what it touches, and what can be done',
+  lede:'Planned, not built. A customer system access date slips a week. Flip between the two cases to see how PACT reasons about dependencies and slack.',
+  notice:['Case A: the delay fits inside existing slack, so go-live does not move. Case B: no slack, so build and testing shift and go-live becomes "can\'t tell yet".','Unknowns stay unknown. Pause and restart cost is "a gap, not zero".','Responsibility for the delay is never decided automatically. Both sides review it.','You approve an exact revision. Edits after you open it force a re-review, and you cannot approve a change you submitted.'],
+  render:function(){
+    var same='pill p-sup',moved='pill p-sug',open='pill p-skip',ok='pill p-sup',no='pill p-na',need='pill p-skip';
+    var D={slack:{rows:[['Test access (customer)','3 Nov','10 Nov','Moved',moved],['Connector built','21 Nov','21 Nov','Unchanged',same],['User testing','1–5 Dec','1–5 Dec','Unchanged',same],['Go-live','12 Dec','12 Dec','Unchanged',same]],sum:'The build had 8 working days of slack. The delay uses 5 of them, so the completion date does not move.',ben:'No change. Go-live is unchanged, so the forecast start of freed time is unchanged.',cost:'None expected. The team can work on other parts of the build in the meantime.',opts:[['Keep the agreement as is','Absorb the delay in existing slack.','Feasible',ok],['Extend the date','Not needed: no milestone moves.','Not needed',no],['Phase delivery','Not needed for this change.','Not needed',no],['Pause for clarification','Confirm the new access date in writing first.','Feasible',ok]]},
+    downstream:{rows:[['Test access (customer)','3 Nov','10 Nov','Moved',moved],['Connector built','21 Nov','28 Nov','Affected',moved],['User testing','1–5 Dec','8–12 Dec','Affected',moved],['Go-live','12 Dec','Can\'t tell yet','Unresolved',open]],sum:'No slack on this path. Build and testing move a week. Go-live can\'t be calculated until the customer confirms reviewers for the new testing window.',ben:'The start of freed time may move with go-live. No money figure is attached: freed time is not cash, and the date is unresolved.',cost:'Pause and restart effort is not estimated yet. This is a gap, not zero.',opts:[['Extend the date','Move testing and go-live by the confirmed delay.','Needs reviewer availability',need],['Phase delivery','Go live with email capture first, finance posting later.','Needs a technical check',need],['Swap scope','Swap a later item for earlier work that needs no access.','Not assessed',need],['Add funded scope','Only if both sides agree extra paid work is wanted.','Not proposed',no],['Pause for clarification','Agree responsibility and dates before re-planning.','Feasible',ok]]}};
+    var c=D[S.scenario];
+    var h='<span class="planned">PLANNED · SLICE 5 · NOT BUILT YET</span><div><h2 style="margin:0;font-size:26px;line-height:34px">Change: the customer\'s system access date moved</h2><p class="sub" style="margin:6px 0 0">No features were added. Test access to the finance system will arrive one week later than agreed. Measured against approved revision 3.</p></div>';
+    h+='<div class="card"><h2>The change as recorded</h2><div class="cols" style="gap:14px"><div><div class="sub" style="font-size:13px">Source</div>Customer email, noted by the provider</div><div><div class="sub" style="font-size:13px">Requested by</div>Customer project contact</div><div><div class="sub" style="font-size:13px">Agreement provision</div>Dependency D2: test access by 3 Nov</div><div><div class="sub" style="font-size:13px">Proposed classification</div>Customer-controlled dependency<div style="font-size:13px;color:var(--amber-ink)">Responsibility needs review. Not decided automatically.</div></div></div></div>';
+    h+='<div class="pills hl" role="group" aria-label="Scenario">';
+    [['slack','Case A · slack available'],['downstream','Case B · affects downstream work']].forEach(function(k){h+='<button aria-pressed="'+(S.scenario==k[0])+'" data-sc="'+k[0]+'">'+k[1]+'</button>';});
+    h+='</div><div class="cols"><div class="card" style="flex-grow:3"><h2>Before and after</h2><span class="sub">Known dependency path: Test access → Build the connector → User testing → Go-live</span><div class="scroll"><table><thead><tr><th>Milestone</th><th>Revision 3</th><th>After the change</th><th>Status</th></tr></thead><tbody>';
+    c.rows.forEach(function(r){h+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td><span class="'+r[4]+'">'+r[3]+'</span></td></tr>';});
+    h+='</tbody></table></div><div style="background:var(--blue-soft);border-radius:10px;padding:14px;font-size:14px">'+c.sum+'</div></div>';
+    h+='<div class="card"><h2>What it affects</h2><div><b style="font-size:14px">Customer benefit timing</b><div style="font-size:14px">'+c.ben+'</div></div><div class="priv"><b style="font-size:14px;color:var(--purple)">Delivery cost · private to provider</b><div style="font-size:14px">'+c.cost+'</div></div><div><b style="font-size:14px">Agreement terms</b><div style="font-size:14px">Revision 3 says late access leads to re-planning by mutual agreement. No delay charge is set, and none is applied.</div></div><div><b style="font-size:14px">Still unresolved</b><div style="font-size:14px">Who is responsible for the delay. Both sides review this.</div></div></div></div>';
+    h+='<div class="card"><h2>Possible responses</h2><span class="sub">Only responses with enough information are marked feasible. Nothing charges the customer automatically.</span><div class="opts">';
+    c.opts.forEach(function(o){h+='<div class="opt"><b>'+o[0]+'</b><span style="font-size:14px">'+o[1]+'</span><span class="'+o[3]+'">'+o[2]+'</span></div>';});
+    h+='</div></div>';
+    var msg=S.approved?'<div class="need" style="background:var(--green-soft);color:var(--green)"><b>'+S.approved+' (demo only)</b><span>In the real app this records a decision on revision 4 and leaves revision 3 in the history.</span></div>':'';
+    h+='<div class="card" style="border:2px solid var(--blue)"><h2>Decision on revision 4</h2><span style="font-size:14px">You are reviewing revision 4 exactly as prepared on 17 Oct at 14:02. If anyone edits it after you opened it, you will be asked to review it again.</span><div class="pills"><button class="btn pri" style="min-height:48px;border-radius:10px" data-ap="Approved revision 4">Approve revision 4</button><button class="btn" style="min-height:48px;border-radius:10px" data-ap="Rejected: revision 3 stays in force">Reject</button><button class="btn" style="min-height:48px;border-radius:10px" data-ap="Deferred: revision 3 stays in force">Defer</button></div>'+msg+'<span class="sub" style="font-size:13px">Rejecting or deferring leaves revision 3 in force. Revision 3 is kept either way. Approval here records a decision, not a legal signature. You can\'t approve a change you submitted yourself.</span></div>';
+    return h;
+  }
+},
+{
+  nav:'7 · What is real', kick:'STEP 7 OF 7', screen:'Status',
+  title:'What exists today, and what you need to decide',
+  lede:'Steps 2 to 5 describe what the foundation build covers. Step 6 is design only. This is where the code stands on branch claude/pact-foundation.',
+  notice:['Local demo works for slices 1 and 2 only. Not pilot-ready, not production-ready.','Slice 3 next: evidence links, customer confirm and dispute, saved calculation snapshots, shared export, member invitations.','The build report recommends trying it provider-only on your own engagements before building the customer side.'],
+  render:function(){
+    return '<div class="cols"><div class="card"><h2>Built and tested</h2><span>Describe a project and get an honest partial brief, with rule-based suggestions that need your confirmation.</span><span>One question at a time, with answer, unknown, not applicable, skip.</span><span>Readiness per decision, time-freed hours, private price floor, server-side privacy filter, full change history, edit-conflict warning.</span><span class="sub">Reported: 40 core tests, 22 server tests against Postgres, 8 browser tests on desktop and phone with accessibility scans. Reported by the build session, not re-run here.</span></div>'+
+    '<div class="card"><h2>Your five decisions</h2><div class="need"><b>1 · Sign-in</b><span>Local passwords or company single sign-on.</span></div><div class="need"><b>2 · Customer roles</b><span>Proposed: reviewers answer and dispute, approvers approve agreements.</span></div><div class="need"><b>3 · AI model</b><span>Whether to use one, which, and on what data terms. None is used now.</span></div><div class="need"><b>4 · Description privacy</b><span>Should the original description start private to the provider?</span></div><div class="need"><b>5 · Data retention</b><span>How long records are kept and how they are deleted.</span></div></div></div>';
+  }
+}
+];
+
+function draw(){
+  var s=steps[cur];
+  document.getElementById('kick').textContent=s.kick;
+  document.getElementById('title').textContent=s.title;
+  document.getElementById('lede').textContent=s.lede;
+  document.getElementById('notice').innerHTML=s.notice.map(function(n){return '<li>'+n+'</li>';}).join('');
+  document.getElementById('screenname').textContent=s.screen;
+  document.getElementById('screen').innerHTML=s.render();
+  document.getElementById('prev').disabled=cur===0;
+  var nx=document.getElementById('next');nx.disabled=cur===steps.length-1;
+  var d=document.getElementById('dots');
+  d.innerHTML=steps.map(function(x,i){return '<button data-i="'+i+'"'+(i===cur?' aria-current="step"':'')+'>'+x.nav+'</button>';}).join('');
+}
+function go(i){cur=Math.max(0,Math.min(steps.length-1,i));draw();window.scrollTo({top:0});}
+
+document.addEventListener('click',function(e){
+  var t=e.target.closest('button');if(!t)return;
+  if(t.dataset.i!==undefined)return go(+t.dataset.i);
+  if(t.id==='prev')return go(cur-1);
+  if(t.id==='next')return go(cur+1);
+  if(t.dataset.go)return go(+t.dataset.go);
+  if(t.dataset.dec){S.decision=t.dataset.dec;return draw();}
+  if(t.dataset.sc){S.scenario=t.dataset.sc;return draw();}
+  if(t.dataset.ap){S.approved=t.dataset.ap;return draw();}
+  if(t.dataset.act==='accept'){S.accepted=true;return draw();}
+  if(t.dataset.act==='undo'){S.accepted=false;return draw();}
+});
+document.addEventListener('keydown',function(e){
+  var tag=(e.target.tagName||'').toLowerCase();if(tag==='textarea'||tag==='input')return;
+  if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);
+});
+draw();
+</script>
+</body>
+</html>
